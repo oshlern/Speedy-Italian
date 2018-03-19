@@ -3,7 +3,9 @@ import keras
 class QNet:
 	# Define Q neural network
 	def __init__(self, state_shape, action_size, hyperparams={'max_len': 2000, 'discount_rate': 0.99, 'exploration_init': 1.0, 'exploration_fin': 0.005, 'exploration_decay': 0.99, 'learning_rate': 0.3}):
-		self.state_size = reduce(mul, state_shape, 1)
+		self.state_size = 1
+		for shp in state_shape:
+			self.state_size *= shp
 		self.input_shape = state_shape
 		self.action_size = action_size
 		self.memory = deque(maxlen=hyperparams['max_len'])
@@ -67,7 +69,7 @@ class QNet:
 		self.model.fit(states, target_rewards, epochs=1, verbose=0) # fit our model based on our state and target value
 		# decay exploration if possible
 		if self.exploration > self.exploration_fin:
-            self.exploration *= self.exploration_decay
+			self.exploration *= self.exploration_decay
 
 
 

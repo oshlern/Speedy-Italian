@@ -1,16 +1,16 @@
 # PYTHON 3 (sadly)
 import numpy
 import gym
-import gym_pull
-gym_pull.pull('github.com/ppaquette/gym-super-mario')        # Only required once, envs will be loaded with import gym_pull afterwards
-env = gym.make('ppaquette/SuperMarioBros-1-1-v0')
+# import gym_pull
+# gym_pull.pull('github.com/ppaquette/gym-super-mario')        # Only required once, envs will be loaded with import gym_pull afterwards
+# env = gym.make('ppaquette/SuperMarioBros-1-1-v0')
 from model import *
 
 def addToFile(file, what): # from https://stackoverflow.com/questions/13203868/how-to-write-to-csv-and-not-overwrite-past-text
-    f = csv.writer(open(file, 'a')).writerow(what) # appends to csv file
+	f = csv.writer(open(file, 'a')).writerow(what) # appends to csv file
 
 if __name__ == "__main__": # Main part of game:
-	env = gym.make('SpaceInvaders-v0')
+	env = gym.make('CartPole-v0')
 	state_shape = env.observation_space.shape
 	action_size = env.action_space.n
 	agent = QNet(state_shape, action_size)
@@ -37,4 +37,5 @@ if __name__ == "__main__": # Main part of game:
 			agent.train(batch_size)
 	model_json = agent.model.to_json()
 	with open("model.json", "w") as json_file:
-json_file.write(model_json)
+		json_file.write(model_json)
+
