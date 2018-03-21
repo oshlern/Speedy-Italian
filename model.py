@@ -1,4 +1,6 @@
-import keras
+from keras.models import Sequential
+from keras.layers import Conv2D
+from collections import deque
 
 class QNet:
 	# Define Q neural network

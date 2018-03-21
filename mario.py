@@ -10,7 +10,7 @@ def addToFile(file, what): # from https://stackoverflow.com/questions/13203868/h
 	f = csv.writer(open(file, 'a')).writerow(what) # appends to csv file
 
 if __name__ == "__main__": # Main part of game:
-	env = gym.make('CartPole-v0')
+	env = gym.make('CarRacing-v0')
 	state_shape = env.observation_space.shape
 	action_size = env.action_space.n
 	agent = QNet(state_shape, action_size)
