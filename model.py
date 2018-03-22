@@ -50,6 +50,10 @@ class QNet:
 		else:
 			outcomes = self.model.predict(self.process_state(state)) # choose the action in our current state that returns the highest value
 			return np.argmax(outcomes[0])
+
+	def test_act(self, state):
+		outcomes = self.model.predict(self.process_state(state)) # choose the action in our current state that returns the highest value
+		return np.argmax(outcomes[0])
 	
 	def train(self, action_num): # train our model
 		# training_data = list(self.memory)[len(self.memory)-action_num: len(self.memory)] # take the most recent iterations of the model

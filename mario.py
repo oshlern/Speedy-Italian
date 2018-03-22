@@ -26,9 +26,11 @@ if __name__ == "__main__": # Main part of game:
 		score = 0
 		while True:
 			if render:
+				time.sleep(1/60)
 				env.render()
-				time.sleep(1/30)
-			action = agent.act(state)
+				action = agent.test_act(state)
+			else:
+				action = agent.act(state)
 			next_state, reward, done, _ = env.step(action)
 			reward = reward if not done else -10
 			if not done:
