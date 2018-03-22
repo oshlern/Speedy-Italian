@@ -27,10 +27,13 @@ class QNet:
 	# Build a model
 	def _build_model(self):
 		model = Sequential()
-		model.add(Conv2D(32, kernel_size=(8, 8), strides=(4, 4), activation='relu', input_shape=self.input_shape))
-		model.add(Conv2D(64, kernel_size=(4, 4), strides=(2, 2), activation='relu'))
-		model.add(Conv2D(64, kernel_size=(3, 3), strides=(1, 1), activation='relu'))
-		model.add(Flatten())
+		if len(self.input_shape) != 1:
+			model.add(Conv2D(32, kernel_size=(8, 8), strides=(4, 4), activation='sigmoid', input_shape=self.input_shape))
+			model.add(Conv2D(64, kernel_size=(4, 4), strides=(2, 2), activation='sigmoid'))
+			model.add(Conv2D(64, kernel_size=(3, 3), strides=(1, 1), activation='relu'))
+			model.add(Flatten())
+		else:
+			model.add(Dense(30, activation='sigmoid', input_shape=self.input_shape))
 		model.add(Dense(512, activation='relu'))
 		model.add(Dense(self.action_size, activation='linear'))
 		model.compile(loss=mean_squared_error, # TODO: better loss, why categorical?
@@ -39,7 +42,7 @@ class QNet:
 		return model
 
 	def process_state(self, state): # TODO: is this needed? can we not input an individual state? if so, can we just input [state]?
-		return state.reshape(1, state.shape[0], state.shape[1], state.shape[2])
+		return np.array([state]) #state.reshape(1, state.shape[0], state.shape[1], state.shape[2])
 
 	def remember(self, state, actions, reward, next_state, done):# remember our information
 		self.memory.append((state, actions, reward, next_state, done))# 	Just add it to memory
@@ -69,6 +72,8 @@ class QNet:
 		rewards = np.append(terminal_rewards, nonterminal_rewards, axis=0)
 		actions = np.append(terminal_actions, nonterminal_actions, axis=0)
 		target_rewards = np.array(self.model.predict(states))
+		if random.random() < 0.01:
+			print([(rewards[i], target_rewards[i,actions[i]]) for i in range(self.batch_size)])
 		for i in range(self.batch_size):
 			target_rewards[i,actions[i]] = rewards[i]
 		reorder = np.random.permutation(self.batch_size)
