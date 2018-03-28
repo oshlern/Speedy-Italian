@@ -19,8 +19,8 @@ if __name__ == "__main__": # Main part of game:
 	EPISODES = 100000
 	render_rate = 500
 	print_rate = 20
-	hyperparams={'max_len': 2000000, 'discount_rate': 0.99, 'exploration_init': 1.0, 'exploration_fin': 0.005, 'exploration_decay': 0.99993, 'learning_rate': 0.00024, 'batch_size': 32}
-	agent = QNet(state_shape, action_size, hyperparams)
+	hyperparams={'max_len': 2000000, 'discount_rate': 0.99, 'exploration_init': 1.0, 'exploration_fin': 0.005, 'exploration_decay': 0.99993, 'learning_rate': 0.02, 'batch_size': 32, 'update_target_freq': 160}
+	agent = QNet(state_shape, action_size, layer_sizes=[], hyperparams=hyperparams)
 
 	for e in range(EPISODES):
 		render = e%render_rate == 0
