@@ -24,6 +24,7 @@ class QNet:
 		self.learning_rate = hyperparams['learning_rate']
 		self.update_target_freq = hyperparams['update_target_freq']
 		self.model = self._build_model(layer_sizes=layer_sizes, conv_layer_sizes=conv_layer_sizes)
+		self.target_model = Sequential.from_config(self.model.get_config())
 		self.update_target_net()
 		self.counter = 0
 
@@ -46,7 +47,7 @@ class QNet:
 					model.add(Dense(size, activation='relu'))
 				model.add(Dense(self.action_size, activation='linear'))
 			else:
-				model.add(Dense(self.action_size, activation='linear', input_shape=self.input_shape))
+				model.add(Dense(self.action_size, activation='linear', input_shape=self.input_shape, use_bias=False))
 		model.compile(loss=mean_squared_error, # TODO: better loss, why categorical?
 			optimizer=Adam(lr=self.learning_rate), # TODO: better optimizer, Adam
 			metrics=['accuracy'])
@@ -67,15 +68,19 @@ class QNet:
 			return np.argmax(outcomes[0])
 
 	def test_act(self, state):
-		outcomes = self.model.predict(self.process_state(state)) # choose the action in our current state that returns the highest value
-		return np.argmax(outcomes[0])
+		if self.exploration_fin > np.random.rand():# if we are exploring
+			return random.randrange(self.action_size) # random action
+		else:
+			outcomes = self.model.predict(self.process_state(state)) # choose the action in our current state that returns the highest value
+			return np.argmax(outcomes[0])
 
 	def update_target_net(self):
-		self.target_model = Sequential.from_config(self.model.get_config())
+		self.target_model.set_weights(self.model.get_weights())
 		self.target_model.compile(optimizer='sgd', loss='mse') #arbitrary loss and optimizer
 	
 	def train(self, action_num): # train our model
 		if self.counter % self.update_target_freq == 0:
+			print("updating TARGET")
 			self.update_target_net()
 		# training_data = list(self.memory)[len(self.memory)-action_num: len(self.memory)] # take the most recent iterations of the model
 		training_data = random.sample(list(self.memory), self.batch_size)
@@ -92,7 +97,7 @@ class QNet:
 		target_rewards = np.array(self.model.predict(states))
 		reorder = np.random.permutation(self.batch_size)
 		states, target_rewards, rewards, actions = states[reorder], target_rewards[reorder], rewards[reorder], actions[reorder]
-		if self.counter % 100 == 0:
+		if self.counter % 500 == 0:
 			print(self.model.get_weights())
 			# print([(rewards[i], target_rewards[i,actions[i]]) for i in range(self.batch_size)])
 			# print(rewards)
