@@ -2,15 +2,35 @@
 import numpy
 import gym
 import time
-# import gym_pull
-# gym_pull.pull('github.com/ppaquette/gym-super-mario')        # Only required once, envs will be loaded with import gym_pull afterwards
-# env = gym.make('ppaquette/SuperMarioBros-1-1-v0')
+import math
 from model import *
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
+from matplotlib import style
+
+style.use('fivethirtyeight')
+fig = plt.figure()
+ax1 = fig.add_subplot(1,1,1)
 
 def addToFile(file, what): # from https://stackoverflow.com/questions/13203868/how-to-write-to-csv-and-not-overwrite-past-text
 	f = csv.writer(open(file, 'a')).writerow(what) # appends to csv file
 
+def animate(i, argu):
+    graph_data = open(argu,'r').read()
+    lines = graph_data.split('\n')
+    xs = []
+    ys = []
+    for line in lines:
+        if len(line) > 1:
+            x, y = line.split(',')
+            xs.append(x)
+            ys.append(y)
+    ax1.clear()
+    ax1.plot(xs, ys)
+
 if __name__ == "__main__": # Main part of game:
+	filename = "runs/" + str(math.ceil(time.time())) + ".csv"
+	addToFile(filename, "")
 	env = gym.make('CartPole-v0')
 	state_shape = env.observation_space.shape
 	action_size = env.action_space.n
@@ -18,11 +38,13 @@ if __name__ == "__main__": # Main part of game:
 	batch_size = 32
 	EPISODES = 100000
 	render_rate = 500
-	print_rate = 20
+	print_rate = 50
 	hyperparams={'max_len': 2000000, 'discount_rate': 0.99, 'exploration_init': 1.0, 'exploration_fin': 0.005, 'exploration_decay': 0.99993, 'learning_rate': 0.02, 'batch_size': 32, 'update_target_freq': 160}
 	agent = QNet(state_shape, action_size, layer_sizes=[], hyperparams=hyperparams)
 
 	for e in range(EPISODES):
+		ani = animation.FuncAnimation(fig, animate, fargs=[filename], interval=5000)
+		plt.show(block=False)
 		render = e%render_rate == 0
 		state = env.reset()
 		score = 0
@@ -43,7 +65,7 @@ if __name__ == "__main__": # Main part of game:
 				if e%print_rate == 0:
 					print("episode: {}/{}, score: {}, e: {:.2}"
 						.format(e, EPISODES, score, agent.exploration))
-				addToFile("test.csv",([e, score])) # add data to file for later analyzation
+					addToFile(filename,([e, score])) # add data to file for later analyzation
 				break
 		if len(agent.memory) > batch_size:
 			agent.train(batch_size)
