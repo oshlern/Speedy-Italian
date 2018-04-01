@@ -39,9 +39,20 @@ if __name__ == "__main__": # Main part of game:
 	EPISODES = 100000
 	render_rate = 500
 	print_rate = 50
-	hyperparams={'max_len': 2000000, 'discount_rate': 0.99, 'exploration_init': 1.0, 'exploration_fin': 0.005, 'exploration_decay': 0.99993, 'learning_rate': 0.02, 'batch_size': 32, 'update_target_freq': 160}
-	agent = QNet(state_shape, action_size, layer_sizes=[], hyperparams=hyperparams)
-
+	hyperparams={'max_len': 2000000, 'discount_rate': 0.99, 'exploration_init': 1.0, 'exploration_fin': 0.009, 'exploration_decay': 0.9997, 'learning_rate': 0.015, 'batch_size': 32, 'update_target_freq': 1000}
+	agent = QNet(state_shape, action_size, layer_sizes=[4], hyperparams=hyperparams)
+	sample_weights = [np.array([[-0.01, 0.01], [0.0,0.0], [-3,3], [-0.5,0.5]]), np.array([0.0,0.0])]
+	# agent.model.set_weights(sample_weights)
+	# for e in range(10):
+	# 	state = env.reset()
+	# 	while True:
+	# 		time.sleep(1/30)
+	# 		env.render()
+	# 		action = agent.test_act(state)
+	# 		next_state, reward, done, _ = env.step(action)
+	# 		state = next_state
+	# 		if done:
+	# 			break
 	for e in range(EPISODES):
 		ani = animation.FuncAnimation(fig, animate, fargs=[filename], interval=5000)
 		plt.show(block=False)
